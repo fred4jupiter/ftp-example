@@ -9,9 +9,9 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FtpTemplateTest {
+public class FtpTemplateMT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FtpTemplateTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FtpTemplateMT.class);
 
     @Test
     public void uploadFileAndCheckResult() {
