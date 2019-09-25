@@ -25,7 +25,7 @@ class FtpClient {
         this.password = password;
     }
 
-    private FTPClient open() throws IOException {
+    private FTPClient createAndOpenConnection() throws IOException {
         LOG.debug("open...");
         FTPClient tmpClient = new FTPClient();
 
@@ -45,7 +45,7 @@ class FtpClient {
 
     public <T> T executeOnFtp(FtpCallback<T> callback) {
         try {
-            FTPClient client = open();
+            FTPClient client = createAndOpenConnection();
             T result = callback.operate(client);
             LOG.debug("close...");
             client.disconnect();
