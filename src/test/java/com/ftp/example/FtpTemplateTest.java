@@ -1,6 +1,8 @@
 package com.ftp.example;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -8,6 +10,8 @@ import java.util.Collection;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FtpTemplateTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FtpTemplateTest.class);
 
     @Test
     public void uploadFile() {
@@ -17,8 +21,8 @@ public class FtpTemplateTest {
         ftpTemplate.executeOnFtp(callback -> {
             callback.putFileToPath(file, "/home/vagrant");
             Collection<String> uploadedFiles = callback.listFiles("/home/vagrant");
-            uploadedFiles.stream().forEach(filename -> System.out.println("File: " + filename));
+            uploadedFiles.forEach(filename -> LOG.debug("File: {}", filename));
+            assertThat(uploadedFiles).contains(file.getName());
         });
-
     }
 }

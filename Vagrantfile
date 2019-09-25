@@ -19,5 +19,6 @@ Vagrant.configure(2) do |config|
  
   # to prevent tty errors
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"  
-  config.vm.provision "shell", inline: "sudo apt update -y && sudo apt install vsftpd -y"  
+  config.vm.provision "shell", inline: "sudo apt update -y && sudo apt install vsftpd -y"
+  config.vm.provision "shell", inline: "sudo sed -i '/#write_enable=YES/c write_enable=YES' /etc/vsftpd.conf"
 end
