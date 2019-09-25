@@ -14,15 +14,22 @@ public class FtpTemplateTest {
     private static final Logger LOG = LoggerFactory.getLogger(FtpTemplateTest.class);
 
     @Test
-    public void uploadFile() {
-        FtpTemplate ftpTemplate = new FtpTemplate("192.168.75.75", 21, "vagrant", "vagrant");
+    public void uploadFileAndCheckResult() {
+        final FtpTemplate ftpTemplate = new FtpTemplate("192.168.75.75", 21, "vagrant", "vagrant");
         File file = new File("src/test/resources/ftp/baz.txt");
         assertThat(file).exists();
-        ftpTemplate.executeOnFtp(callback -> {
-            callback.putFileToPath(file, "/home/vagrant");
-            Collection<String> uploadedFiles = callback.listFiles("/home/vagrant");
-            uploadedFiles.forEach(filename -> LOG.debug("File: {}", filename));
-            assertThat(uploadedFiles).contains(file.getName());
-        });
+
+        ftpTemplate.putFileToPath(file, "/home/vagrant");
+
+        Collection<String> uploadedFiles = ftpTemplate.listFiles("/home/vagrant");
+        uploadedFiles.forEach(filename -> LOG.debug("File: {}", filename));
+        assertThat(uploadedFiles).contains(file.getName());
+
+        final String destinationPathFilename = "target/baz.txt";
+        boolean result = ftpTemplate.downloadFile("/home/vagrant/baz.txt", destinationPathFilename);
+        assertThat(result).isTrue();
+
+        File downloadedFile = new File(destinationPathFilename);
+        assertThat(downloadedFile).exists();
     }
 }

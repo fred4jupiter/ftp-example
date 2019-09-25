@@ -9,5 +9,5 @@ public interface FtpOperations {
 
     void putFileToPath(File file, String path);
 
-    void downloadFile(String source, String destination);
+    boolean downloadFile(String source, String destination);
 }

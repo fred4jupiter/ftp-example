@@ -11,44 +11,53 @@ import java.io.PrintWriter;
 
 class FtpClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FtpClient.class );
+    private static final Logger LOG = LoggerFactory.getLogger(FtpClient.class);
 
     private final String server;
     private final int port;
     private final String user;
     private final String password;
-    private FTPClient ftp;
 
-    FtpClient(String server, int port, String user, String password) {
+    public FtpClient(String server, int port, String user, String password) {
         this.server = server;
         this.port = port;
         this.user = user;
         this.password = password;
     }
 
-    void open() throws IOException {
+    private FTPClient open() throws IOException {
         LOG.debug("open...");
-        ftp = new FTPClient();
+        FTPClient tmpClient = new FTPClient();
 
-        ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
-        ftp.connect(server, port);
-        int reply = ftp.getReplyCode();
+        tmpClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
+        tmpClient.connect(server, port);
+        int reply = tmpClient.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
-            ftp.disconnect();
+            tmpClient.disconnect();
             throw new IOException("Exception in connecting to FTP Server");
         }
 
         LOG.debug("login...");
-        ftp.login(user, password);
-        ftp.enterLocalPassiveMode();
+        tmpClient.login(user, password);
+        tmpClient.enterLocalPassiveMode();
+        return tmpClient;
     }
 
-    void close() throws IOException {
-        LOG.debug("close...");
-        ftp.disconnect();
+    public <T> T executeOnFtp(FtpCallback<T> callback) {
+        try {
+            FTPClient client = open();
+            T result = callback.operate(client);
+            LOG.debug("close...");
+            client.disconnect();
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
-    public FTPClient getFtp() {
-        return ftp;
+    @FunctionalInterface
+    public interface FtpCallback<T> {
+
+        T operate(FTPClient ftpclient) throws IOException;
     }
 }
